@@ -13,7 +13,6 @@ import (
 var (
 	outFile  *string
 	size     *int
-	textArt  *bool
 	negative *bool
 )
 
@@ -24,16 +23,17 @@ var encodeCMD = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var q *qrcode.QRCode
 		var err error
+
 		content := strings.Join(args, " ")
+
+		if content == "" {
+			cmd.Usage()
+			return
+		}
+
 		q, err = qrcode.New(content, qrcode.Highest)
 		if err != nil {
 			log.Fatalln(err)
-		}
-
-		if *textArt {
-			art := q.ToString(*negative)
-			fmt.Println(art)
-			return
 		}
 
 		if *negative {
@@ -47,7 +47,8 @@ var encodeCMD = &cobra.Command{
 		}
 
 		if *outFile == "" {
-			os.Stdout.Write(png)
+			art := q.ToString(*negative)
+			fmt.Println(art)
 		} else {
 			var fn *os.File
 			fn, err = os.Create(*outFile + ".png")
@@ -57,14 +58,12 @@ var encodeCMD = &cobra.Command{
 			defer fn.Close()
 			fn.Write(png)
 		}
-
 	},
 }
 
 func init() {
 	outFile = encodeCMD.PersistentFlags().String("o", "", "输出文件名")
 	size = encodeCMD.PersistentFlags().Int("s", 256, "图片大小 像素点")
-	textArt = encodeCMD.PersistentFlags().Bool("t", false, "输出到stdout")
 	negative = encodeCMD.PersistentFlags().Bool("i", false, "反转黑白")
 
 	rootCMD.AddCommand(encodeCMD)

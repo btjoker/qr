@@ -19,11 +19,11 @@ var (
 var decodeCMD = &cobra.Command{
 	Use:   "decode",
 	Short: "解析二维码图片",
-	Long:  "接收一个path, 解析该文件二维码内容",
+	Long:  "接收一个path/URL, 解析该文件二维码内容",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			fmt.Println("只需要一个参数")
-			os.Exit(-1)
+			cmd.Usage()
+			return
 		}
 
 		path := args[0]
